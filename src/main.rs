@@ -51,7 +51,10 @@ fn main() -> color_eyre::Result<()> {
     )?;
 
     let settings_json = include_bytes!("settings.json");
-    let settings_json_path = xdg_data_home.join("code-server");
+    let settings_json_path = xdg_data_home
+        .join("code-server")
+        .join("Machine")
+        .join("settings.json");
     create_dir_all(settings_json_path.parent().unwrap())?;
     write(settings_json_path, settings_json)?;
 
