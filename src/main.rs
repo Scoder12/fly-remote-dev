@@ -20,8 +20,7 @@ fn main() -> color_eyre::Result<()> {
     let home = env::var_os("HOME").ok_or(eyre!("HOME var not set"))?;
     let auth_keys_file = [home.clone(), ".ssh".into(), "authorized_keys".into()]
         .iter()
-        .collect::<PathBuf>()
-        .canonicalize()?;
+        .collect::<PathBuf>();
     std::fs::create_dir_all(auth_keys_file.parent().unwrap())?;
     write!(File::create(auth_keys_file)?, "{}", ssh_pubkey)?;
 
