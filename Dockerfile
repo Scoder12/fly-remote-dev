@@ -59,4 +59,5 @@ RUN set -eux; \
     code-server --install-extension FelixIcaza.andromeda; \
     code-server --install-extension esbenp.prettier-vscode
 
+ENV RUST_BACKTRACE=full
 CMD ["./remote-dev"]
