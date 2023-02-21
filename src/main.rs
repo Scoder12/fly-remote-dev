@@ -22,7 +22,7 @@ fn main() -> color_eyre::Result<()> {
         .iter()
         .collect();
     std::fs::create_dir_all(auth_keys_file.parent().unwrap())?;
-    write!(File::create(auth_keys_file)?, "{}", ssh_pubkey);
+    write!(File::create(auth_keys_file)?, "{}", ssh_pubkey)?;
 
     let code_server_password =
         env::var("CODE_SERVER_PASS").wrap_err("CODE_SERVER_PASS var invalid")?;
@@ -43,7 +43,7 @@ fn main() -> color_eyre::Result<()> {
         cert: false\n",
         CODE_SERVER_PORT,
         code_server_password
-    );
+    )?;
 
     let status = Command::new("sudo")
         .arg("service")
