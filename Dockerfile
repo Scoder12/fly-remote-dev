@@ -49,7 +49,8 @@ COPY --from=builder /app/remote-dev ./remote-dev
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 
 USER spencer
-RUN set -eux; \
+RUN --mount=type=cache,target=~/.local/share/code-server/extensions \
+		set -eux; \
     code-server --install-extension rust-lang.rust-analyzer; \
     code-server --install-extension vscodevim.vim; \
     code-server --install-extension eamodio.gitlens; \
