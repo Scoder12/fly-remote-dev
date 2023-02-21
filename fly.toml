@@ -1,0 +1,5 @@
+app = "remote-dev"
+
+[mounts]
+source = "home"
+destination = "/home"
