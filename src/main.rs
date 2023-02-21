@@ -18,18 +18,18 @@ fn main() -> color_eyre::Result<()> {
 
     let ssh_pubkey = env::var("SSH_PUBKEY").wrap_err("SSH_PUBKEY var invalid")?;
     let home = env::var_os("HOME").ok_or(eyre!("HOME var not set"))?;
-    let auth_keys_file: PathBuf = [home.clone(), ".ssh".into(), "authorized_keys".into()]
+    let auth_keys_file = [home.clone(), ".ssh".into(), "authorized_keys".into()]
         .iter()
-        .collect();
+        .collect::<PathBuf>()
+        .canonicalize()?;
     std::fs::create_dir_all(auth_keys_file.parent().unwrap())?;
     write!(File::create(auth_keys_file)?, "{}", ssh_pubkey)?;
 
     let code_server_password =
         env::var("CODE_SERVER_PASS").wrap_err("CODE_SERVER_PASS var invalid")?;
-    let xdg_config_home: PathBuf = match env::var_os("XDG_CONFIG_HOME") {
-        Some(p) => p.into(),
-        None => [home, ".config".into()].iter().collect(),
-    };
+    let xdg_config_home: PathBuf = env::var_os("XDG_CONFIG_HOME")
+        .map(|p| p.into())
+        .unwrap_or_else(|| [home, ".config".into()].iter().collect());
     let code_server_config_path: PathBuf =
         [xdg_config_home, "code-server".into(), "config.yaml".into()]
             .iter()
@@ -59,8 +59,7 @@ fn main() -> color_eyre::Result<()> {
         .stdin(Stdio::null())
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
-        .spawn()
-        .expect("code-server failed to start");
+        .spawn()?;
 
     let mut last_activity = Instant::now();
 
