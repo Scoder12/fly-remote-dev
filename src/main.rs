@@ -114,6 +114,7 @@ fn main() -> color_eyre::Result<()> {
     assert!(status.success());
 
     Command::new("code-server")
+        .env("CS_DISABLE_GETTING_STARTED_OVERRIDE", "1")
         .stdin(Stdio::null())
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
