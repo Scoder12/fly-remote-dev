@@ -51,9 +51,8 @@ fn main() -> color_eyre::Result<()> {
         format!(
             "bind-addr: 0.0.0.0:{}\n\
             auth: password\n\
-            password: {}\n\
             cert: false\n",
-            CODE_SERVER_PORT, code_server_password
+            CODE_SERVER_PORT,
         ),
     )?;
 
@@ -115,6 +114,7 @@ fn main() -> color_eyre::Result<()> {
 
     Command::new("code-server")
         .env("CS_DISABLE_GETTING_STARTED_OVERRIDE", "1")
+        .env("PASSWORD", code_server_password)
         .stdin(Stdio::null())
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
