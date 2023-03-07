@@ -49,16 +49,8 @@ COPY --from=builder /app/remote-dev ./remote-dev
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 
 USER spencer
-RUN --mount=type=cache,target=~/.local/share/code-server/extensions \
-		set -eux; \
-    code-server --install-extension rust-lang.rust-analyzer; \
-    code-server --install-extension vscodevim.vim; \
-    code-server --install-extension eamodio.gitlens; \
-    code-server --install-extension PKief.material-icon-theme; \
-    code-server --install-extension bungcip.better-toml; \
-    code-server --install-extension usernamehw.errorlens; \
-    code-server --install-extension FelixIcaza.andromeda; \
-    code-server --install-extension esbenp.prettier-vscode
+
+# cannot install extensions/configuration here as home volume will mount over them
 
 ENV RUST_BACKTRACE=full
 CMD ["./remote-dev"]
