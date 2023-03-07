@@ -3,8 +3,10 @@ use procfs::net::TcpState;
 use std::{
     convert::TryInto,
     env,
-    fs::{create_dir_all, write},
-    path::PathBuf,
+    ffi::OsStr,
+    fs::{create_dir_all, write, File},
+    io::Write,
+    path::{Path, PathBuf},
     process::{Command, Stdio},
     thread::sleep,
     time::{Duration, Instant},
@@ -12,6 +14,11 @@ use std::{
 
 const SSH_PORT: u16 = 22;
 const CODE_SERVER_PORT: u16 = 8080;
+const CODE_SERVER_PATH: &'static str = "/usr/lib/code-server";
+
+const CUSTOM_FONTS_BEGIN: &'static str = "/* CUSTOM FONTS BEGIN */";
+const CUSTOM_FONTS_END: &'static str = "/* CUSTOM FONTS END */";
+const CUSTOM_FONTS_PATCH: &'static str = include_str!("fonts-patch.css");
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
@@ -48,6 +55,44 @@ fn main() -> color_eyre::Result<()> {
             cert: false\n",
             CODE_SERVER_PORT, code_server_password
         ),
+    )?;
+
+    let workbench_css_path = PathBuf::from(CODE_SERVER_PATH)
+        .join("lib")
+        .join("vscode")
+        .join("out")
+        .join("vs")
+        .join("workbench")
+        .join("workbench.web.main.css");
+    assert!(Command::new("sudo")
+        .arg("chmod")
+        .arg("a+w")
+        .arg::<&OsStr>(workbench_css_path.as_ref())
+        .status()?
+        .success());
+
+    let contents = std::fs::read_to_string(&workbench_css_path)?;
+    let (patch_begin, patch_end) = if let Some(prefix_begin) = contents.find(CUSTOM_FONTS_BEGIN) {
+        let prefix_end = contents
+            .find(CUSTOM_FONTS_END)
+            .ok_or_else(|| eyre!("Found CUSTOM_FONTS_BEGIN but missing CUSTOM_FONTS_END"))?;
+        if prefix_end <= prefix_begin {
+            return Err(eyre!("CUSTOM_FONTS_END after CUSTOM_FONTS_BEGIN"));
+        }
+        (prefix_begin, prefix_end + CUSTOM_FONTS_END.len())
+    } else {
+        (0, 0)
+    };
+    write!(
+        File::options()
+            .write(true)
+            .open::<&Path>(workbench_css_path.as_ref())?,
+        "{}{}{}{}{}",
+        &contents[..patch_begin],
+        CUSTOM_FONTS_BEGIN,
+        CUSTOM_FONTS_PATCH,
+        CUSTOM_FONTS_END,
+        &contents[patch_end..]
     )?;
 
     let settings_json = include_bytes!("settings.json");
