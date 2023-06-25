@@ -120,7 +120,7 @@ fn main() -> color_eyre::Result<()> {
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .spawn()?;
-    
+
     let extensions: Vec<&str> = EXTENSIONS_TXT.lines().filter(|l| !l.is_empty()).collect();
     for ext in extensions.into_iter() {
         println!("Installing extension: {:#?}", ext);
