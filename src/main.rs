@@ -19,6 +19,7 @@ const CODE_SERVER_PATH: &'static str = "/usr/lib/code-server";
 const CUSTOM_FONTS_BEGIN: &'static str = "/* CUSTOM FONTS BEGIN */";
 const CUSTOM_FONTS_END: &'static str = "/* CUSTOM FONTS END */";
 const CUSTOM_FONTS_PATCH: &'static str = include_str!("fonts-patch.css");
+const EXTENSIONS_TXT: &'static str = include_str!("extensions.txt");
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
@@ -119,6 +120,18 @@ fn main() -> color_eyre::Result<()> {
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .spawn()?;
+    
+    let extensions: Vec<&str> = EXTENSIONS_TXT.lines().filter(|l| !l.is_empty()).collect();
+    for ext in extensions.into_iter() {
+        println!("Installing extension: {:#?}", ext);
+        Command::new("code-server")
+            .arg("--install-extension")
+            .arg(ext)
+            .stdin(Stdio::null())
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .status()?;
+    }
 
     let mut last_activity = Instant::now();
 
