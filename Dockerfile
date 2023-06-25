@@ -47,10 +47,10 @@ WORKDIR app
 COPY --from=builder /app/remote-dev ./remote-dev
 
 RUN curl -fsSL https://code-server.dev/install.sh | sh
-RUN grep -rl "style-src 'self' 'unsafe-inline'" . \
+RUN grep -rl "style-src 'self' 'unsafe-inline'" /usr/lib/code-server \
 	| sudo xargs sed -i \
 		"s/style-src 'self' 'unsafe-inline'/style-src 'self' 'unsafe-inline' fonts.googleapis.com/g" && \
-	grep -rl "font-src 'self' blob:" . \
+	grep -rl "font-src 'self' blob:" /usr/lib/code-server \
 	| sudo xargs sed -i \
 		"s/font-src 'self' blob:/font-src 'self' blob: fonts.gstatic.com/g"
 
