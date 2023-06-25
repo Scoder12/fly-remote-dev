@@ -1,0 +1,8 @@
+rust-lang.rust-analyzer
+vscodevim.vim
+eamodio.gitlens
+PKief.material-icon-theme
+bungcip.better-toml
+usernamehw.errorlens
+FelixIcaza.andromeda
+esbenp.prettier-vscode
