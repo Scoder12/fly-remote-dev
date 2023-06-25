@@ -96,13 +96,17 @@ fn main() -> color_eyre::Result<()> {
     )?;
     Command::new("sh")
         .arg("-c")
-        .arg("grep -rl \"style-src 'self' 'unsafe-inline'\" . \
+        .arg("set -x; grep -rl \"style-src 'self' 'unsafe-inline'\" . \
             | sudo xargs sed -i \"s/style-src 'self' 'unsafe-inline'/style-src 'self' 'unsafe-inline' fonts.googleapis.com/g\"")
+        .stdin(Stdio::null())
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
         .status()?;
     Command::new("sh")
         .arg("-c")
         .arg("grep -rl \"font-src 'self' blob:\" . \
             | sudo xargs sed -i \"s/font-src 'self' blob:/font-src 'self' blob: fonts.gstatic.com/g\"")
+        .stdin(Stdio::null())
         .status()?;
 
     let settings_json = include_bytes!("settings.json");
