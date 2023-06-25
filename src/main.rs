@@ -94,6 +94,16 @@ fn main() -> color_eyre::Result<()> {
         CUSTOM_FONTS_END,
         &contents[patch_end..]
     )?;
+    Command::new("sh")
+        .arg("-c")
+        .arg("grep -rl \"style-src 'self' 'unsafe-inline'\" . \
+            | sudo xargs sed -i \"s/style-src 'self' 'unsafe-inline'/style-src 'self' 'unsafe-inline' fonts.googleapis.com/g\"")
+        .status()?;
+    Command::new("sh")
+        .arg("-c")
+        .arg("grep -rl \"font-src 'self' blob:\" . \
+            | sudo xargs sed -i \"s/font-src 'self' blob:/font-src 'self' blob: fonts.gstatic.com/g\"")
+        .status()?;
 
     let settings_json = include_bytes!("settings.json");
     let settings_json_path = xdg_data_home
